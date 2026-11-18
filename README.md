@@ -11,5 +11,5 @@ Trabajo Pr√°ctico grupal de desarrollo web full-stack. Consiste en una aplicaci√
 
 ### 1. Clonar el repositorio
 ```bash
-git clone <URL_DE_TU_REPOSITORIO>
-cd <nombre-de-tu-repo>
+git clone https://github.com/wendycrisponce-svg/chat-harry-potter.git
+cd chat-harry-potter.git
