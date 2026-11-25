@@ -1,13 +1,516 @@
-/* colores perosnalizados de fondo y texto, etc
-:root{
+/* =========================================================
+    HOGWARTS CHAT · estilos.css
+    Base: Bootstrap 5.3.8 (modo oscuro). Acá va SOLO lo que Bootstrap no trae:
+    temas por personaje, fondo animado, vidrio (blur), avatar con aro, ticks,
+    reacciones, puntos de "escribiendo…" y barra de scroll.
+    Espaciado, flex, bordes, badges, separadores y texto chico se resuelven
+    con clases de Bootstrap en el HTML (ver la lista de cambios).
+
+    ÍNDICE
+    1) Paleta base     2) Temas por personaje   3) Ajustes a Bootstrap
+    4) Scroll azul     5) Fondo animado         6) Estructura y vidrio
+    7) Avatares        8) Lista de contactos    9) Chat
+    10) Títulos        11) Menos movimiento
+   ========================================================= */
 
 
+/* 1) PALETA BASE: variables de Bootstrap. Cada color va con su versión -rgb
+      (la usan las utilidades bg-opacity-*), así que se cambian de a pares. */
+[data-bs-theme="dark"] {
+    --bs-body-bg: #03041a;
+    --bs-body-bg-rgb: 3, 4, 26;
 
+    --bs-tertiary-bg: #1E2738;            /* barras y tarjetas */
+    --bs-tertiary-bg-rgb: 30, 39, 56;
+    --bs-secondary-bg: #2A3447;           /* burbuja del usuario, reacciones */
+    --bs-secondary-bg-rgb: 42, 52, 71;
+    --bs-border-color: #36425A;
+
+    --bs-body-color: #E9ECF2;
+    --bs-body-color-rgb: 233, 236, 242;
+    --bs-secondary-color: #C0B79F;
+    --bs-secondary-color-rgb: 192, 183, 159;
+
+    --bs-warning-rgb: 235, 185, 65;       /* dorado de marca */
+
+    --bs-body-font-family: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+    --scroll-thumb: #56637F;              /* gris azulado, discreto */
+    --scroll-track: transparent;
 }
-*/
 
-/*
-[data-casa="gryffindor"] { --color-casa: #7f0909; }
-[data-casa="slytherin"]  { --color-casa: #1a472a; }
-.mensaje--usuario { background: var(--color-casa); }
-*/
+
+/* 2) TEMAS POR PERSONAJE
+    Uso: <html data-tema="luna"> en el chat, y data-tema="luna" en cada
+    contacto de la lista (el selector funciona en cualquier elemento).
+    Cada personaje define 4 colores + la fuente de su nombre.
+    Paleta pensada como conjunto: tonos apagados y metales envejecidos,
+    con saturación parecida, para que las 4 casas convivan sin competir. */
+:root {
+    --pj-burbuja:       #6B2A35;
+    --pj-header:        #45202A;
+    --pj-acento:        #C9A24A;
+    --pj-sobre-acento:  #1A1405;
+    --pj-borde:         transparent;
+    --pj-fuente:        'Cinzel', 'Nunito', serif;
+    --pj-fuente-estilo: normal;
+}
+
+/* Gryffindor */
+[data-tema="harry"]    { --pj-burbuja: #6E1520; --pj-header: #4A0E15; --pj-acento: #D3A625; --pj-sobre-acento: #1A1405; --pj-fuente: 'Cinzel', 'Nunito', serif; }
+[data-tema="hermione"] { --pj-burbuja: #8A2A3C; --pj-header: #5E1B29; --pj-acento: #E6C47A; --pj-sobre-acento: #1A1405; --pj-fuente: 'Cormorant Garamond', 'Nunito', serif; }
+[data-tema="hagrid"]   { --pj-burbuja: #4F2C20; --pj-header: #331C14; --pj-acento: #B07A45; --pj-sobre-acento: #1A1008; --pj-fuente: 'Fredoka', 'Nunito', sans-serif; }
+
+/* Slytherin */
+[data-tema="draco"]     { --pj-burbuja: #1F5236; --pj-header: #133423; --pj-acento: #C3CBD6; --pj-sobre-acento: #10141A; --pj-fuente: 'Marcellus', 'Nunito', serif; }
+[data-tema="snape"]     { --pj-burbuja: #17302A; --pj-header: #0F211C; --pj-acento: #5F9A80; --pj-sobre-acento: #07110D; --pj-fuente: 'IM Fell English', 'Nunito', serif; }
+[data-tema="voldemort"] { --pj-burbuja: #121F1B; --pj-header: #0B1411; --pj-acento: #8ED06B; --pj-sobre-acento: #0A1306; --pj-borde: #2C4A3F; --pj-fuente: 'Pirata One', 'Nunito', serif; }
+
+/* Ravenclaw */
+[data-tema="luna"] { --pj-burbuja: #1F3A78; --pj-header: #142654; --pj-acento: #B8864B; --pj-sobre-acento: #1A1208; --pj-fuente: 'Cormorant Garamond', 'Nunito', serif; --pj-fuente-estilo: italic; }
+
+/* Hufflepuff */
+[data-tema="tonks"] { --pj-burbuja: #3B322B; --pj-header: #2A231E; --pj-acento: #ECB939; --pj-sobre-acento: #1A1405; --pj-fuente: 'Baloo 2', 'Nunito', sans-serif; }
+
+
+/* 3) AJUSTES A BOOTSTRAP: lo que las variables de arriba no resuelven */
+
+/* El foco de los campos viene fijo en azul: lo pasamos al acento */
+.form-control:focus {
+    border-color: var(--pj-acento);
+    box-shadow: 0 0 0 .25rem color-mix(in srgb, var(--pj-acento) 30%, transparent);
+}
+
+/* Botón del color del personaje: variante propia armada solo con las
+   variables de .btn (la forma que documenta Bootstrap) */
+.btn-acento {
+    --bs-btn-color: var(--pj-sobre-acento);
+    --bs-btn-bg: var(--pj-acento);
+    --bs-btn-border-color: transparent;
+    --bs-btn-hover-color: var(--pj-sobre-acento);
+    --bs-btn-hover-bg: color-mix(in srgb, var(--pj-acento) 88%, #ffd24c);
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-active-color: var(--pj-sobre-acento);
+    --bs-btn-active-bg: color-mix(in srgb, var(--pj-acento) 80%, #8a5a00);
+    --bs-btn-active-border-color: transparent;
+    --bs-btn-focus-shadow-rgb: 255, 200, 50;
+    --bs-btn-font-weight: 700;
+
+    /* Dorado más saturado: luz cálida arriba, sombra ámbar oscura abajo */
+    background-image: linear-gradient(180deg, rgba(255, 220, 90, 0.25) 0%, rgba(140, 90, 0, 0.28) 100%);
+    --bs-btn-box-shadow: 0 0 20px color-mix(in srgb, var(--pj-acento) 65%, transparent),
+                         inset 0 1px 1px rgba(255, 235, 150, 0.55);
+    --bs-btn-active-shadow: 0 0 14px color-mix(in srgb, var(--pj-acento) 60%, transparent);
+    transition: all 0.25s ease;
+}
+
+.btn-acento:hover {
+    box-shadow: 0 0 28px color-mix(in srgb, var(--pj-acento) 85%, transparent),
+                inset 0 1px 1px rgba(255, 240, 170, 0.75);
+    transform: translateY(-1px);
+}
+
+.btn-acento:active {
+    transform: translateY(0);
+}
+
+/* Opciones de estado del perfil: son .btn.btn-outline-secondary; acá las
+   variables para la paleta y el puntito de color */
+.btn-estado {
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-border-color: var(--bs-border-color);
+    --bs-btn-hover-color: var(--bs-body-color);
+    --bs-btn-hover-bg: var(--bs-secondary-bg);
+    --bs-btn-hover-border-color: var(--bs-secondary-color);
+    --bs-btn-active-color: var(--bs-body-color);
+    --bs-btn-active-bg: var(--bs-secondary-bg);
+    --bs-btn-active-border-color: var(--estado-color);
+}
+
+.btn-estado::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: .5rem;
+    border-radius: 50%;
+    background-color: var(--estado-color);
+}
+
+/* Lista transparente (se ven las estrellas) y con texto normal en vez de gris */
+.list-group {
+    --bs-list-group-bg: transparent;
+    --bs-list-group-action-color: var(--bs-body-color);
+    --bs-list-group-action-hover-color: var(--bs-body-color);
+}
+
+/* Menú desplegable del usuario: mismo fondo que las barras y tarjetas */
+.dropdown-menu {
+    --bs-dropdown-bg: var(--bs-tertiary-bg);
+    --bs-dropdown-border-color: var(--bs-border-color);
+    --bs-dropdown-divider-bg: var(--bs-border-color);
+    --bs-dropdown-link-hover-bg: var(--bs-secondary-bg);
+}
+
+/* Borde dorado sutil para el botón de usuario */
+.dropdown .btn-dark {
+    --bs-btn-border-color: rgba(var(--bs-warning-rgb), 0.65);
+    --bs-btn-hover-border-color: rgb(var(--bs-warning-rgb));
+    --bs-btn-active-border-color: rgb(var(--bs-warning-rgb));
+    --bs-btn-focus-shadow-rgb: var(--bs-warning-rgb);
+}
+
+
+/* 4) BARRA DE SCROLL: Bootstrap no la estiliza */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+}
+
+/* Respaldo para navegadores viejos que no entienden scrollbar-color */
+@supports not (scrollbar-color: auto) {
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: var(--scroll-track); }
+    ::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #6B7A99; }
+}
+
+
+/* 5) FONDO ANIMADO: degradé + estrellas que derivan y titilan + niebla.
+    Solo CSS, detrás de todo y sin recibir clics. En el chat (.fondo-pj)
+    el resplandor y la niebla toman el acento del personaje. */
+.fondo-magico {
+    --estrella: #E9ECF2;
+    --niebla: rgba(110, 135, 190, .20);
+    --brillo: rgba(120, 150, 215, .22);
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 85% 45% at 50% -8%, var(--brillo), transparent 70%),
+        radial-gradient(ellipse 60% 35% at 95% 108%, var(--brillo), transparent 70%),
+        linear-gradient(180deg,
+        color-mix(in srgb, var(--bs-body-bg) 94%, white) 0%,
+        var(--bs-body-bg) 45%,
+        color-mix(in srgb, var(--bs-body-bg) 70%, black) 100%);
+}
+
+/* WENDY: hace que las estrellas y la niebla tomen el acento del personaje */
+.fondo-pj {
+    --estrella: color-mix(in srgb, var(--pj-acento) 85%, white);
+    --niebla: color-mix(in srgb, var(--pj-acento) 11%, transparent);
+    --brillo: color-mix(in srgb, var(--pj-acento) 13%, transparent);
+}
+
+/* El elemento es más grande que la pantalla y se desplaza justo un "mosaico"
+   (220px / 340px): por eso el loop es continuo, sin saltos. */
+.estrellas {
+    position: absolute;
+    inset: -220px;
+    background-image:
+        radial-gradient(2.25px 2.25px at 20px 30px,  var(--estrella) 50%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 90px 120px,   var(--estrella) 50%, transparent 100%),
+        radial-gradient(2.25px 2.25px at 160px 60px, var(--estrella) 50%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 50px 170px,   var(--estrella) 50%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 130px 190px,  var(--estrella) 50%, transparent 100%);
+    background-size: 220px 220px;
+    opacity: .55;
+    will-change: transform, opacity;
+    animation: titilar 5s ease-in-out infinite alternate, deriva-1 70s linear infinite;
+}
+
+.estrellas.capa2 {
+    inset: -340px;
+    background-image:
+        radial-gradient(1.5px 1.5px at 40px 80px,    var(--estrella) 50%, transparent 100%),
+        radial-gradient(2.25px 2.25px at 150px 20px, var(--estrella) 50%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 260px 140px,  var(--estrella) 50%, transparent 100%),
+        radial-gradient(2.25px 2.25px at 90px 250px, var(--estrella) 50%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 300px 290px,  var(--estrella) 50%, transparent 100%);
+    background-size: 340px 340px;
+    animation: titilar 8s ease-in-out -4s infinite alternate, deriva-2 100s linear infinite;
+}
+
+@keyframes titilar  { from { opacity: .15; } to { opacity: .6; } }
+@keyframes deriva-1 { to { transform: translate(220px, 220px); } }
+@keyframes deriva-2 { to { transform: translate(-340px, 340px); } }
+
+.niebla {
+    position: absolute;
+    left: -25%;
+    width: 150%;
+    height: 55%;
+    background: radial-gradient(ellipse at center, var(--niebla) 0%, transparent 70%);
+    animation: derivar 45s ease-in-out infinite alternate;
+    will-change: transform;
+}
+
+.niebla.n1 { top: 5%; }
+.niebla.n2 { bottom: -5%; animation-duration: 60s; animation-direction: alternate-reverse; }
+
+@keyframes derivar {
+    from { transform: translate(-10%, 0); }
+    to   { transform: translate(10%, 4%); }
+}
+
+/* Dos estrellas fugaces con ritmos distintos */
+.fondo-magico::before,
+.fondo-magico::after {
+    content: "";
+    position: absolute;
+    width: 130px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #fff, var(--estrella) 25%, transparent);
+    filter: drop-shadow(0 0 6px var(--estrella));
+    opacity: 0;
+    transform: rotate(-35deg);
+    animation: fugaz 11s ease-in infinite;
+}
+
+.fondo-magico::before { top: 8%;  left: 78%; animation-delay: 2s; }
+.fondo-magico::after  { top: 28%; left: 96%; animation-duration: 17s; animation-delay: 8s; }
+
+@keyframes fugaz {
+    0%   { opacity: 0; transform: translate(0, 0) rotate(-35deg); }
+    3%   { opacity: 1; }
+    9%, 100% { opacity: 0; transform: translate(-520px, 364px) rotate(-35deg); }
+}
+
+
+/* 6) ESTRUCTURA Y VIDRIO
+   Colores, bordes, sombras y capas salen de clases de Bootstrap en el HTML
+   (bg-body-tertiary bg-opacity-75, border-bottom, shadow-sm, position-relative z-2).
+   Acá solo lo que Bootstrap no tiene: el blur y el tamaño del chat. */
+.chat {
+    max-width: 720px;
+    height: 100vh;
+    height: 100dvh;
+}
+
+.vidrio {
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+}
+
+/* Borde dorado sutil para la tarjeta principal */
+/* (ahora lo hacen border-warning border-opacity-25 y shadow-lg en la tarjeta del HTML) */
+
+/* Borde dorado sutil en los inputs y resplandor al enfocarlos */
+.form-control {
+    --bs-border-color: rgba(var(--bs-warning-rgb), 0.25);
+}
+
+/* Header del chat: color propio de cada personaje */
+/* WENDY: el header lleva las utilidades border-bottom border-2; toman el color de esta variable */
+.chat-header {
+    --bs-border-color: var(--pj-acento);
+    background-color: color-mix(in srgb, var(--pj-header) 82%, transparent);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, .06), transparent 70%);
+}
+
+.aparecer { animation: aparecer .6s cubic-bezier(.2, .9, .3, 1.1) backwards; }
+
+@keyframes aparecer {
+    from { opacity: 0; transform: translateY(10px) scale(.94); }
+}
+
+
+/* 7) AVATARES Y ESTADO DEL CONTACTO */
+.avatar {
+    width: 46px;
+    height: 46px;
+    background-color: var(--pj-acento);
+    background-size: cover;
+    background-position: center;
+    color: var(--pj-sobre-acento);
+    box-shadow: 0 0 0 2px var(--bs-body-bg), 0 0 0 3.5px color-mix(in srgb, var(--pj-acento) 60%, transparent);
+}
+
+.avatar-lista  { width: 52px; height: 52px; }
+.avatar-perfil { width: 96px; height: 96px; background-size: cover; background-position: center; }
+
+/* Botón redondo con ícono: cámara del perfil y reacciones / eliminar del chat.
+   Se usa junto a "btn rounded-circle p-0" (el tamaño fijo no existe en Bootstrap) */
+.btn-icono {
+    width: 2.5rem;
+    height: 2.5rem;
+    transition: transform .12s ease, background-color .15s ease-in-out;
+}
+
+.btn-icono:hover,
+.btn-icono:focus-visible { transform: scale(1.15); }
+
+/* Estado: verde / naranja / rojo apagados */
+[data-estado="disponible"]  { --estado-color: #4FA77A; }
+[data-estado="ocupado"]     { --estado-color: #D98A4E; }
+[data-estado="no-molestar"] { --estado-color: #C75B5B; }
+
+/* Posición y círculo: position-absolute bottom-0 end-0 rounded-circle en el HTML */
+.estado-punto {
+    --bs-border-color: var(--estado-borde, var(--bs-body-bg));
+    width: 14px;
+    height: 14px;
+    background-color: var(--estado-color, #4FA77A);
+}
+
+/* WENDY: además de position-absolute bottom-0 end-0 rounded-circle, el punto lleva border border-2
+   en el HTML (el color del borde sale de --bs-border-color, que se redefine acá) */
+
+.chat-header .estado-punto { --estado-borde: var(--pj-header); }
+
+
+/* 8) LISTA DE CONTACTOS (index.html)
+Cada fila lleva una línea fija con el acento de su personaje (la misma del
+aro del avatar); al pasar el mouse se ensancha y la fila toma un tinte suave. */
+.contacto {
+    --bs-list-group-action-hover-bg: color-mix(in srgb, var(--pj-acento) 9%, transparent);
+    box-shadow: inset 3px 0 0 var(--pj-acento);
+    transition: box-shadow .2s ease, background-color .2s ease;
+    animation: entrar-contacto .55s ease-out backwards;
+}
+
+.contacto:hover,
+.contacto:focus-visible {
+    box-shadow: inset 5px 0 0 var(--pj-acento);
+}
+
+/* Entrada escalonada */
+.list-group > .contacto:nth-child(1) { animation-delay: .05s; }
+.list-group > .contacto:nth-child(2) { animation-delay: .12s; }
+.list-group > .contacto:nth-child(3) { animation-delay: .19s; }
+.list-group > .contacto:nth-child(4) { animation-delay: .26s; }
+.list-group > .contacto:nth-child(5) { animation-delay: .33s; }
+.list-group > .contacto:nth-child(6) { animation-delay: .40s; }
+.list-group > .contacto:nth-child(7) { animation-delay: .47s; }
+.list-group > .contacto:nth-child(n+8) { animation-delay: .54s; }
+
+@keyframes entrar-contacto { from { opacity: 0; transform: translateX(-16px); } }
+
+/* Badge de no leídos: es un .badge de Bootstrap; solo cambian los colores */
+.badge-no-leidos {
+    --bs-badge-color: var(--pj-sobre-acento);
+    background-color: var(--pj-acento);
+}
+
+/* Por las dudas: los badges vacíos no se ven */
+.badge-no-leidos:empty,
+.reaccion-mensaje:empty { display: none; }
+
+
+/* 9) CHAT: BURBUJAS, MENSAJES Y ACCIONES
+        Padding, texto largo y sombra salen de px-3 py-2 text-break shadow-sm.
+        Estructura en <template id="tpl-mensaje"> de conversacion.html
+        WENDY: lo que no está acá lo resuelven utilidades de Bootstrap en el HTML
+        (están anotadas en cada bloque). */
+.burbuja {
+    max-width: 85%;
+    animation: aparecer .38s cubic-bezier(.2, .9, .3, 1.25) backwards;
+}
+
+.burbuja:focus-visible { outline: 2px solid var(--pj-acento); outline-offset: 2px; }
+
+/* WENDY: las dos burbujas llevan la utilidad "border"; la del usuario lleva además bg-body-secondary.
+   En la del personaje el color del borde sale de --bs-border-color (se redefine acá). */
+.burbuja-pj {
+    --bs-border-color: var(--pj-borde);
+    background-color: var(--pj-burbuja);
+    border-bottom-left-radius: .25rem !important;
+}
+
+.burbuja-usuario {
+    border-bottom-right-radius: .25rem !important;
+}
+
+/* Mensaje eliminado: apagado y con borde punteado */
+/* WENDY: además de burbuja-eliminada, la burbuja lleva bg-transparent text-body-secondary fst-italic */
+.burbuja-eliminada { border-style: dashed !important; }
+
+.burbuja-eliminada .texto-mensaje::before { content: "🚫 "; font-style: normal; }
+
+/* Contenedor del mensaje: lleva position-relative d-flex flex-column en el HTML */
+.mensaje { max-width: 85%; }
+/* WENDY: dentro de .mensaje la burbuja lleva la utilidad mw-100 (ocupa todo el ancho del mensaje) */
+
+/* Ticks según data-estado="enviado | entregado | leido" */
+/* WENDY: el tilde lleva small lh-1 me-1 en el HTML */
+.estado-mensaje { letter-spacing: -.2em; }
+.estado-mensaje[data-estado="enviado"]::before { content: "✓"; }
+.estado-mensaje[data-estado="entregado"]::before,
+.estado-mensaje[data-estado="leido"]::before { content: "✓✓"; }
+.estado-mensaje[data-estado="leido"] { color: var(--bs-info); }
+.mensaje-pj .estado-mensaje { display: none; } /* el personaje no muestra ticks */
+
+/* Reacción: pastilla (.badge) que se superpone al borde de la burbuja */
+/* WENDY: la pastilla lleva badge rounded-pill bg-body-secondary border mx-2, y el .mensaje lleva
+   align-items-end (usuario) o align-items-start (personaje); Bootstrap no tiene márgenes negativos */
+.reaccion-mensaje { margin-top: -.55rem; }
+
+/* Barra flotante de acciones (se muestra quitando d-none) */
+/* WENDY: la barra lleva d-none d-flex align-items-center gap-1 position-absolute bottom-100
+    bg-body-tertiary border rounded-pill shadow-sm p-1 aparecer, y end-0 (usuario) o start-0 (personaje).
+    Mientras tenga d-none no se ve; al quitarlo aparece como flex. Los botones llevan btn btn-icono
+    rounded-circle p-0 (la clase btn-reaccion / btn-eliminar queda solo como selector para el JS). */
+
+/* "escribiendo…" (la cursiva viene de fst-italic en el HTML) */
+.escribiendo { color: var(--pj-acento); }
+
+/* WENDY: el contenedor lleva d-inline-flex gap-1 ms-1 align-middle en el HTML */
+
+/* WENDY: cada <i> lleva además rounded-circle en el HTML */
+.puntos i {
+    width: 4px;
+    height: 4px;
+    background-color: currentColor;
+    animation: salto 1.2s ease-in-out infinite;
+}
+
+.puntos i:nth-child(2) { animation-delay: .15s; }
+.puntos i:nth-child(3) { animation-delay: .3s; }
+
+@keyframes salto {
+    0%, 60%, 100% { transform: translateY(0);    opacity: .5; }
+    30%           { transform: translateY(-3px); opacity: 1; }
+}
+
+
+/* 10) TÍTULOS */
+
+/* Nombre del personaje (header y lista): fuente propia de cada tema */
+.pj-nombre,
+.contacto-nombre {
+    font-family: var(--pj-fuente);
+    font-style: var(--pj-fuente-estilo);
+    /* la fuente ya viene con el peso pedido a Google Fonts */
+    letter-spacing: .02em;
+}
+
+/* WENDY: el <h1 id="pj-nombre"> lleva fw-normal en el HTML (el peso ya no se define acá) */
+
+/* Título de la app: dorado con brillo que recorre las letras */
+.app-titulo {
+    font-family: 'Cinzel', 'Nunito', serif;
+    letter-spacing: .04em;
+    background-image: linear-gradient(100deg, #B8892A 0%, #F3E2A9 22%, #D3A625 45%, #F3E2A9 70%, #B8892A 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 14px rgba(211, 166, 37, .35));
+    animation: brillo-titulo 8s linear infinite;
+}
+
+@keyframes brillo-titulo { to { background-position: 200% 0; } }
+
+
+/* 11) ACCESIBILIDAD: con "menos movimiento" todo queda quieto */
+@media (prefers-reduced-motion: reduce) {
+    .estrellas, .estrellas.capa2, .niebla, .puntos i,
+    .fondo-magico::before, .fondo-magico::after,
+    .burbuja, .contacto, .aparecer, .app-titulo { animation: none; }
+
+    .contacto, .btn-icono { transition: none; }
+}
