@@ -5,3 +5,9 @@
 
 }
 */
+
+/*
+[data-casa="gryffindor"] { --color-casa: #7f0909; }
+[data-casa="slytherin"]  { --color-casa: #1a472a; }
+.mensaje--usuario { background: var(--color-casa); }
+*/

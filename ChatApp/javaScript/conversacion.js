@@ -1,4 +1,10 @@
 //conversacion.js
+
+
+// 🎨 HTML/CSS: esta clase la estiliza Integrante 1. Si necesita otra, pedirla acá.
+// ⚙️ HTML: necesita un elemento con id="lista-contactos".
+
+
 /* =========================================
    ELEMENTOS DEL DOM
 ========================================= */
@@ -16,6 +22,9 @@ const indicadorEscribiendo = document.getElementById("indicador-escribiendo");
 const formularioMensaje = document.getElementById("formulario-mensaje");
 const inputMensaje = document.getElementById("input-mensaje");
 const botonEnviar = document.getElementById("btn-enviar");
+
+// 🎨 CSS: tema del chat según la casa del personaje
+document.body.dataset.casa = contacto.casa || "";
 
 
 /* =========================================
@@ -214,6 +223,7 @@ function irAlFinal(comportamiento = "smooth") {
 
 function crearMensaje(mensaje) {
 
+    contenedor.classList.add(mensaje.autor === "usuario" ? "mensaje--usuario" : "mensaje--contacto");
     // Contenedor
     const contenedor = document.createElement("div");
 
@@ -285,7 +295,7 @@ function crearMensaje(mensaje) {
     }
 
     // Reacción
-    if (mensaje.reaccion) {
+    if (mensaje.reaccion && !mensaje.eliminado) {
 
         const reaccion = document.createElement("span");
 
@@ -294,6 +304,13 @@ function crearMensaje(mensaje) {
         reaccion.textContent = mensaje.reaccion;
 
         contenedor.append(reaccion);
+
+    }
+
+    // Botones de reaccionar y eliminar (solo mensajes ya guardados en el backend)
+    if (mensaje._id && !mensaje.eliminado) {
+
+        agregarAccionesMensaje(contenedor, mensaje);
 
     }
 

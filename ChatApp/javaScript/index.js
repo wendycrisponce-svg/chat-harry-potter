@@ -70,6 +70,11 @@ function renderizarContactos(contactos) {
 // Crea la tarjeta de un contacto
 function crearTarjetaContacto(contacto) {
 
+    // 🎨 CSS: permite colorear la tarjeta por casa y por estado
+    tarjeta.dataset.casa = contacto.casa || "";      // "gryffindor", "slytherin", "hufflepuff", "ravenclaw"
+    tarjeta.dataset.estado = contacto.estado || "";
+
+    
     // Contenedor principal de la tarjeta
     const tarjeta = document.createElement("div");
     tarjeta.classList.add("card", "mb-2");
