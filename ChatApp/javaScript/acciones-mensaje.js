@@ -3,101 +3,78 @@
 // Orden de carga: config.js -> api.js -> utils.js -> acciones-mensaje.js -> conversacion.js
 // Usa crearMensaje() de conversacion.js (se llama cuando ya está cargado).
 
-// Los 5 emojis que pide la consigna
-//es una contante por que la lista no necesita cambiar durante la ejecucion.
-//si quieren modificar los emojis, se cambia este array
-const EMOJIS_REACCION = ["👍", "❤️", "😂", "😮", "😢"];
+// 🎨 HTML/CSS: los botones NO se crean acá. Ya están escritos dentro de los <template>
+// de conversacion.html (barra .acciones-mensaje con los botones .btn-reaccion y .btn-eliminar).
+// Los 5 emojis de la consigna se cambian en el HTML, en el atributo data-emoji de cada botón.
+// Este archivo solo conecta esos botones con el backend.
 
-// Agrega los botones de reaccionar y eliminar a un mensaje ya dibujado
-//recibe 2 parametros:
-//el contenedor :elemento HTML que contiene el mensaje
-//mensaje: objeto con los datos del mensaje
-// Crea los botones de reacción y eliminación y los agrega
-// debajo del contenido del mensaje.
+// Conecta la barra de acciones de un mensaje ya dibujado.
+// Recibe 2 parámetros:
+// contenedor: elemento HTML que contiene el mensaje (clonado de la plantilla).
+// mensaje: objeto con los datos del mensaje.
 function agregarAccionesMensaje(contenedor, mensaje) {
-    //Crea una fila para agrupar los botones de acciones.
-    const acciones = document.createElement("div");
-    // Aplica clases de Bootstrap para alinear y separar los botones.
-    acciones.classList.add("d-flex", "align-items-center", "gap-1", "mt-2");
+    // Busca dentro del mensaje la burbuja y la barra de acciones.
+    const burbuja = contenedor.querySelector(".burbuja");
+    const barra = contenedor.querySelector(".acciones-mensaje");
 
     // =============================================
-    // SELECTOR DE EMOJIS
+    // MOSTRAR Y OCULTAR LA BARRA
     // =============================================
 
-    // Crea el contenedor donde aparecerán los emojis.
-    const selector = document.createElement("div");
-    // Lo oculta inicialmente.
-    // La propiedad hidden permite mostrarlo u ocultarlo desde JavaScript.
-    // No se agrega d-flex porque podría interferir con hidden.
-    selector.hidden = true;
-    // Recorre el array de emojis disponibles.
-    EMOJIS_REACCION.forEach((emoji) => {
-        // Crea un botón para cada emoji.
-        //No necesita que cada botón esté escrito previamente en el HTML.
-        const botonEmoji = document.createElement("button");
+    // Función que abre la barra de este mensaje y cierra las de los demás.
+    const alternarBarra = () => {
+        // d-none es la clase de Bootstrap que oculta un elemento.
+        // Si la barra la tiene, significa que está cerrada y hay que abrirla.
+        const abrir = barra.classList.contains("d-none");
 
-        // Indica que es un botón común y no un botón de envío de formulario.
-        botonEmoji.type = "button";
-        // Aplica estilos de Bootstrap.
-        botonEmoji.classList.add("btn", "btn-sm", "btn-light", "me-1");
-        // Muestra el emoji dentro del botón.
-        botonEmoji.textContent = emoji;
-        // Agrega un texto descriptivo al pasar el cursor.
-        botonEmoji.title = `Reaccionar con ${emoji}`;
-        // Cuando se hace clic, guarda la reacción en el backend.
-        botonEmoji.addEventListener("click", () => {
-            reaccionarMensaje(contenedor, mensaje, emoji, botonEmoji);
+        // Cierra todas las barras para que solo haya una abierta a la vez.
+        document.querySelectorAll(".acciones-mensaje").forEach((otra) => {
+            otra.classList.add("d-none");
         });
-        // Incorpora el botón al selector.
-        selector.append(botonEmoji);
+
+        // Si estaba cerrada, la muestra quitando d-none.
+        if (abrir) {
+            barra.classList.remove("d-none");
+        }
+    };
+
+    // La barra se abre al hacer clic en la burbuja.
+    burbuja.addEventListener("click", alternarBarra);
+
+    // También se abre con el teclado (Enter o Espacio), para que sea accesible.
+    // La burbuja tiene tabindex="0" en el HTML, por eso puede recibir el foco.
+    burbuja.addEventListener("keydown", (evento) => {
+        if (evento.key === "Enter" || evento.key === " ") {
+            // Evita que la tecla Espacio desplace la página.
+            evento.preventDefault();
+            alternarBarra();
+        }
     });
 
     // =============================================
-    // BOTÓN PARA MOSTRAR LOS EMOJIS
+    // BOTONES DE EMOJIS
     // =============================================
 
-    // Botón que muestra u oculta el selector
-    const botonReaccion = document.createElement("button");
-
-    botonReaccion.type = "button";
-    // Clases visuales de Bootstrap.
-    botonReaccion.classList.add("btn", "btn-sm", "btn-outline-secondary");
-    // Emoji que representa la acción de reaccionar.
-    botonReaccion.textContent = "😊";
-    // Texto descriptivo.
-    botonReaccion.title = "Reaccionar";
-    // Alterna entre mostrar y ocultar el selector.
-    botonReaccion.addEventListener("click", () => {
-        //Si está oculto, lo muestra.
-        selector.hidden = !selector.hidden;
+    // Recorre los botones de reacción que vienen de la plantilla.
+    barra.querySelectorAll(".btn-reaccion").forEach((boton) => {
+        // Cuando se hace clic, guarda la reacción en el backend.
+        // dataset.emoji lee el valor del atributo data-emoji del HTML.
+        boton.addEventListener("click", () => {
+            reaccionarMensaje(contenedor, mensaje, boton.dataset.emoji, boton);
+        });
     });
 
     // =============================================
     // BOTÓN PARA ELIMINAR
     // =============================================
 
-    const botonEliminar = document.createElement("button");
-
-    botonEliminar.type = "button";
-    // Clases de Bootstrap: botón pequeño con borde rojo.
-    botonEliminar.classList.add("btn", "btn-sm", "btn-outline-danger");
-    // Icono de papelera.
-    botonEliminar.textContent = "🗑️";
-    botonEliminar.title = "Eliminar mensaje";
     // Al hacer clic, solicita eliminar el mensaje.
-    botonEliminar.addEventListener("click", () => {
-        eliminarMensaje(contenedor, mensaje, botonEliminar);
-    });
-
-    // =============================================
-    // AGREGAR ACCIONES AL MENSAJE
-    // =============================================
-
-    // Agrupa el botón de reacción, el selector de emojis
-    // y el botón de eliminación.
-    acciones.append(botonReaccion, selector, botonEliminar);
-    // Agrega la fila de acciones al contenedor del mensaje.
-    contenedor.append(acciones);
+    // evento.currentTarget es el botón al que se le asignó el evento.
+    barra
+        .querySelector(".btn-eliminar")
+        .addEventListener("click", (evento) => {
+            eliminarMensaje(contenedor, mensaje, evento.currentTarget);
+        });
 }
 
 // =============================================
@@ -135,7 +112,8 @@ async function reaccionarMensaje(contenedor, mensaje, emoji, boton) {
         mensaje.reaccion = emoji;
 
         // Reemplaza el mensaje anterior por uno actualizado.
-        // crearMensaje() vuelve a construir su representación HTML.
+        // crearMensaje() vuelve a clonar la plantilla con los datos nuevos
+        // (la barra queda cerrada otra vez).
         contenedor.replaceWith(crearMensaje(mensaje));
     } catch (error) {
         // Si ocurre un error, vuelve a habilitar el botón.
@@ -176,11 +154,10 @@ async function eliminarMensaje(contenedor, mensaje, boton) {
             method: "DELETE",
         });
 
-        // crearMensaje() ya muestra "Mensaje eliminado" cuando eliminado es true
         // Actualiza el objeto local.
         mensaje.eliminado = true;
         // Vuelve a dibujar el mensaje.
-        // crearMensaje() debe mostrar "Mensaje eliminado"
+        // crearMensaje() muestra "Mensaje eliminado"
         // cuando la propiedad eliminado es true.
         contenedor.replaceWith(crearMensaje(mensaje));
     } catch (error) {

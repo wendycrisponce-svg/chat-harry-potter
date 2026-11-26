@@ -15,6 +15,8 @@
 const nombreContacto = document.getElementById("nombre-contacto");
 const fotoContacto = document.getElementById("foto-contacto");
 const estadoContacto = document.getElementById("estado-contacto");
+// Puntito de color junto a la foto (verde / naranja / rojo según el estado).
+const estadoPunto = document.getElementById("estado-punto");
 
 // Mensajes
 // Contenedor donde se agregarán todos los mensajes de la conversación.
@@ -28,10 +30,8 @@ const formularioMensaje = document.getElementById("formulario-mensaje");
 const inputMensaje = document.getElementById("input-mensaje");
 const botonEnviar = document.getElementById("btn-enviar");
 
-// 🎨 CSS: tema del chat según la casa del personaje.
-// dataset permite establecer atributos personalizados data-* en el HTML.
-// Se utiliza para que CSS pueda aplicar estilos según la casa del personaje.
-document.body.dataset.casa = contacto.casa || "";
+// NOTA: el tema de colores (data-tema) y el color del punto de estado (data-estado)
+// se asignan dentro de cargarDatosContacto(), porque recién ahí se conoce el contacto.
 
 /* =========================================
    IDENTIFICAR CONTACTO Y ESTADO LOCAL
@@ -114,6 +114,21 @@ async function cargarDatosContacto() {
 
     // Cambia el título de la pestaña del navegador por el nombre del contacto.
     document.title = contacto.nombre;
+
+    // 🎨 CSS: tema de colores del personaje.
+    // dataset permite establecer atributos personalizados data-* en el HTML.
+    // Se coloca en <html> porque el CSS usa [data-tema="luna"], [data-tema="harry"], etc.
+    // y cambia las variables de color de toda la pantalla (burbujas, encabezado, botón, estrellas).
+    // obtenerTema() está en utils.js.
+    document.documentElement.dataset.tema = obtenerTema(contacto);
+
+    // 🎨 CSS: color del puntito de estado.
+    // El CSS espera "disponible", "ocupado" o "no-molestar" (con guion),
+    // por eso se reemplazan los espacios del valor que llega del backend ("no molestar").
+    estadoPunto.dataset.estado = (contacto.estado || "disponible").replace(
+        /\s+/g,
+        "-",
+    );
 
     // Foto: primero el manejador de error, después el src.
     // alt proporciona una descripción alternativa de la imagen.
@@ -214,7 +229,7 @@ function renderizarMensajes(mensajes, comportamiento = "auto") {
     mensajes.forEach((mensaje) => {
         listaMensajes.append(crearMensaje(mensaje));
     });
-    // Desplaza la vista hasta el último mensaj
+    // Desplaza la vista hasta el último mensaje.
     irAlFinal(comportamiento);
 }
 
@@ -240,17 +255,25 @@ function irAlFinal(comportamiento = "smooth") {
 ========================================= */
 
 // Construye visualmente un mensaje utilizando los datos recibidos.
+// 🎨 HTML/CSS: la estructura del mensaje NO se arma acá. Se clona de los <template>
+// de conversacion.html (tpl-mensaje-usuario y tpl-mensaje-contacto), donde están
+// todas las clases de Bootstrap y las del CSS (burbuja, burbuja-usuario, burbuja-pj, etc.).
+// Para cambiar el aspecto de un mensaje se edita ese HTML, no este archivo.
 function crearMensaje(mensaje) {
-    // Agrega una clase según quién haya enviado el mensaje.
+    // Elige la plantilla según quién envió el mensaje.
     // mensaje.autor permite distinguir entre el usuario y el contacto.
-    contenedor.classList.add(
-        mensaje.autor === "usuario" ? "mensaje--usuario" : "mensaje--contacto",
-    );
+    const idPlantilla =
+        mensaje.autor === "usuario"
+            ? "tpl-mensaje-usuario"
+            : "tpl-mensaje-contacto";
+
     // Contenedor.
-    // Crea el div que agrupa el texto, la hora, el estado y las reacciones.
-    const contenedor = document.createElement("div");
-    // Agrega clases de Bootstrap y una clase propia.
-    contenedor.classList.add("mensaje", "p-3", "rounded", "border");
+    // <template> guarda HTML que no se muestra hasta que se clona.
+    // content.firstElementChild es el div principal del mensaje y
+    // cloneNode(true) hace una copia completa, con todo lo que contiene.
+    const contenedor = document
+        .getElementById(idPlantilla)
+        .content.firstElementChild.cloneNode(true);
 
     // Punto de enganche para reacciones / eliminar (Integrante 6).
     // Comprueba si el mensaje tiene un ID asignado por el backend.
@@ -259,95 +282,66 @@ function crearMensaje(mensaje) {
         contenedor.dataset.id = mensaje._id;
     }
 
-    // Diferencia mensajes propios y los del contacto.
-    // Las clases permiten alinearlos de manera diferente mediante CSS.
-    if (mensaje.autor === "usuario") {
-        contenedor.classList.add("align-self-end");
-    } else {
-        contenedor.classList.add("align-self-start");
-    }
+    // Busca dentro de la copia las partes que hay que completar.
+    const burbuja = contenedor.querySelector(".burbuja");
+    const texto = contenedor.querySelector(".texto-mensaje");
 
     // Texto.
-    // Crea el párrafo que contendrá el texto del mensaje.
-    const texto = document.createElement("p");
     // Comprueba si el mensaje fue eliminado.
-    texto.classList.add("mb-1");
-
     if (mensaje.eliminado) {
         // Reemplaza el contenido por un aviso de mensaje eliminado.
         texto.textContent = "Mensaje eliminado";
-        // Aplica estilos de Bootstrap para diferenciar el aviso.
-        texto.classList.add("text-muted", "fst-italic");
+        // Cambia el aspecto de la burbuja: sin fondo, gris, cursiva y borde punteado.
+        // (bg-body-secondary es el fondo normal de la burbuja del usuario).
+        burbuja.classList.remove("bg-body-secondary");
+        burbuja.classList.add(
+            "burbuja-eliminada",
+            "bg-transparent",
+            "text-body-secondary",
+            "fst-italic",
+        );
     } else {
         // Muestra el texto original del mensaje.
         // Si no hay texto, utiliza una cadena vacía.
         texto.textContent = mensaje.texto || "";
     }
-    // Agrega el párrafo al contenedor.
-    contenedor.append(texto);
 
     // Hora.
-    // Crea un elemento pequeño para mostrar la fecha del mensaje.
-    const hora = document.createElement("small");
-
-    hora.classList.add("text-muted");
     // formatearFecha() convierte la fecha en un formato legible.
-    hora.textContent = formatearFecha(mensaje.fecha);
-    // Agrega la hora al mensaje.
-    contenedor.append(hora);
-    // Estado de mensajes enviados por el usuario (leído = azul).
-    // Los estados solamente se muestran en los mensajes propios.
-    if (mensaje.autor === "usuario") {
-        const estado = document.createElement("small");
-        // Agrega separación y aplica un color según el estado.
-        estado.classList.add(
-            "ms-2",
-            mensaje.estado === "leido" ? "text-primary" : "text-muted",
-        );
-        // Obtiene el símbolo que representa el estado del mensaje.
-        estado.textContent = obtenerEstadoMensaje(mensaje.estado);
+    contenedor.querySelector(".hora-mensaje").textContent = formatearFecha(
+        mensaje.fecha,
+    );
 
-        contenedor.append(estado);
+    // Estado de mensajes enviados por el usuario.
+    // Solo la plantilla del usuario tiene el elemento .estado-mensaje,
+    // por eso se comprueba que exista antes de usarlo.
+    const estado = contenedor.querySelector(".estado-mensaje");
+
+    if (estado) {
+        // 🎨 CSS: los tildes (✓ / ✓✓) y el color azul de "leído" los dibuja el CSS
+        // según data-estado="enviado | entregado | leido". Acá solo se guarda el valor.
+        estado.dataset.estado = mensaje.estado || "";
     }
+
     // Reacción.
     // Muestra el emoji asociado al mensaje, siempre que no haya sido eliminado.
-    if (mensaje.reaccion && !mensaje.eliminado) {
-        const reaccion = document.createElement("span");
-
-        reaccion.classList.add("ms-2");
-        // Inserta el emoji de la reacción.
-        reaccion.textContent = mensaje.reaccion;
-
-        contenedor.append(reaccion);
-    }
+    // Si queda vacío, el CSS oculta la pastilla de reacción.
+    contenedor.querySelector(".reaccion-mensaje").textContent =
+        mensaje.reaccion && !mensaje.eliminado ? mensaje.reaccion : "";
 
     // Botones de reaccionar y eliminar (solo mensajes ya guardados en el backend).
     // Comprueba que el mensaje tenga ID y que no esté eliminado.
     if (mensaje._id && !mensaje.eliminado) {
         // Llama a una función definida en acciones-mensaje.js.
-        // Esta función agrega los controles de reacción y eliminación.
+        // Esta función conecta los botones de la barra de acciones.
         agregarAccionesMensaje(contenedor, mensaje);
+    } else {
+        // Si el mensaje es provisional o está eliminado, no debe tener acciones.
+        // Se quita la barra que venía en la plantilla.
+        contenedor.querySelector(".acciones-mensaje").remove();
     }
     // Devuelve el elemento completo para que pueda agregarse a la conversación.
     return contenedor;
-}
-
-/* =========================================
-   ESTADOS DEL MENSAJE
-========================================= */
-
-// Convierte el estado recibido del backend en un símbolo visual.
-function obtenerEstadoMensaje(estado) {
-    // Objeto que relaciona cada estado con su representación.
-    const estados = {
-        pendiente: "🕓", // solo en pantalla, mientras el backend confirma
-        enviado: "✓",
-        entregado: "✓✓",
-        leido: "✓✓", // se diferencia por el color (text-primary)
-    };
-    // Busca el símbolo correspondiente al estado.
-    // Si el estado no está contemplado, devuelve una cadena vacía.
-    return estados[estado] || "";
 }
 
 /* =========================================

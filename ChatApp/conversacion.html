@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,15 +18,174 @@
                 href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
             />
     
+               <!-- Fuentes de los personajes y del título (las usa el CSS) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500&family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Fredoka:wght@500&family=IM+Fell+English&family=Marcellus&family=Nunito:wght@400;700&family=Pirata+One&display=swap"
+        rel="stylesheet"
+    />
+
             <link rel="stylesheet" href="/chat-harry-potter/ChatApp/css/styles.css" />
+
+            
     </head>
+
+
+
     <body>
         
-    
-    
-        <!--boostrap-->
-       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+        <body class="overflow-hidden">
+
+    <!-- 🎨 Fondo animado (el CSS lo deja detrás de todo) -->
+    <div class="fondo-magico fondo-pj" aria-hidden="true">
+        <div class="estrellas"></div>
+        <div class="estrellas capa2"></div>
+        <div class="niebla n1"></div>
+        <div class="niebla n2"></div>
+    </div>
+
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+
+            <!-- ================= LISTA DE CHATS (solo pantalla grande) ================= -->
+            <aside class="col-lg-4 col-xl-3 d-none d-lg-flex flex-column vh-100 bg-body-tertiary bg-opacity-75 vidrio border-end position-relative z-2">
+
+                <a href="../index.html" class="d-flex align-items-center p-3 border-bottom text-decoration-none">
+                    <span class="app-titulo fs-4">Hogwarts Chat</span>
+                </a>
+
+                <!-- ⚙️ JS: lo completa con GET /api/contactos (no dejar chats de ejemplo acá) -->
+                <div id="lista-contactos" class="list-group list-group-flush overflow-auto flex-grow-1">
+                    <p class="text-body-secondary p-3 mb-0">Cargando chats...</p>
+                </div>
+
+            </aside>
+
+            <!-- ================= CHAT ================= -->
+            <main class="col-12 col-lg-8 col-xl-9 p-0">
+                <div class="chat d-flex flex-column w-100 mx-auto">
+
+                    <!-- Encabezado del contacto -->
+                    <header class="chat-header vidrio d-flex align-items-center gap-3 px-3 py-2 border-bottom border-2 shadow-sm position-relative z-2">
+
+                        <!-- Volver a la lista (solo pantalla chica) -->
+                        <a href="../index.html"
+                           class="btn btn-icono rounded-circle p-0 d-inline-flex align-items-center justify-content-center d-lg-none"
+                           aria-label="Volver a la lista de chats">
+                            <i class="bi bi-arrow-left fs-5"></i>
+                        </a>
+
+                        <!-- Foto + punto de estado -->
+                        <div class="position-relative flex-shrink-0">
+                            <img id="foto-contacto" class="avatar rounded-circle object-fit-cover"
+                                 src="../images/default.png" alt="">
+                            <span id="estado-punto"
+                                  class="estado-punto position-absolute bottom-0 end-0 rounded-circle border border-2"></span>
+                        </div>
+
+                        <!-- Nombre, estado y "escribiendo..." -->
+                        <div class="flex-grow-1 overflow-hidden">
+                            <h1 id="nombre-contacto" class="pj-nombre h5 fw-normal mb-0 text-truncate"></h1>
+                            <small id="estado-contacto" class="d-block text-body-secondary"></small>
+
+                            <!-- ⚙️ JS: lo muestra/oculta con el atributo hidden (por eso no lleva d-flex) -->
+                            <div id="indicador-escribiendo" class="escribiendo small fst-italic" hidden>
+                                escribiendo<span class="puntos d-inline-flex gap-1 ms-1 align-middle"><i class="rounded-circle"></i><i class="rounded-circle"></i><i class="rounded-circle"></i></span>
+                            </div>
+                        </div>
+
+                    </header>
+
+                    <!-- ⚙️ JS: aquí se dibujan los mensajes (debe ser d-flex flex-column) -->
+                    <div id="lista-mensajes" class="flex-grow-1 overflow-auto d-flex flex-column gap-2 p-3"
+                         role="log" aria-live="polite"></div>
+
+                    <!-- Escribir y enviar -->
+                    <form id="formulario-mensaje"
+                          class="vidrio bg-body-tertiary bg-opacity-75 border-top d-flex align-items-center gap-2 p-2 position-relative z-2"
+                          autocomplete="off">
+                        <input id="input-mensaje" type="text" class="form-control rounded-pill"
+                               placeholder="Escribí un mensaje" aria-label="Escribí un mensaje">
+                        <button id="btn-enviar" type="submit"
+                                class="btn btn-acento btn-icono rounded-circle p-0 d-inline-flex align-items-center justify-content-center flex-shrink-0"
+                                aria-label="Enviar mensaje">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </form>
+
+                </div>
+            </main>
+
+        </div>
+    </div>
+
+
+    <!-- =====================================================================
+         PLANTILLAS DE MENSAJE
+         ⚙️ El JS clona la plantilla según el autor y completa estas partes:
+            .texto-mensaje, .hora-mensaje, .estado-mensaje (data-estado), .reaccion-mensaje,
+            .acciones-mensaje (se muestra quitando d-none), .btn-reaccion (data-emoji), .btn-eliminar
+         🎨 Mensaje eliminado: el JS reemplaza bg-body-secondary por
+            "burbuja-eliminada bg-transparent text-body-secondary fst-italic".
+         Los 5 emojis de reacción se cambian acá (data-emoji).
+         ===================================================================== -->
+
+    <!-- Mensaje del usuario (derecha) -->
+    <template id="tpl-mensaje-usuario">
+        <div class="mensaje position-relative d-flex flex-column align-items-end align-self-end">
+            <div class="burbuja burbuja-usuario bg-body-secondary border rounded-4 px-3 py-2 text-break shadow-sm mw-100" tabindex="0">
+                <span class="texto-mensaje"></span>
+                <div class="text-end mt-1">
+                    <small class="hora-mensaje text-body-secondary"></small>
+                    <span class="estado-mensaje small lh-1 ms-1" data-estado=""></span>
+                </div>
+            </div>
+            <span class="reaccion-mensaje badge rounded-pill bg-body-secondary border mx-2"></span>
+            <div class="acciones-mensaje d-none d-flex align-items-center gap-1 position-absolute bottom-100 end-0 bg-body-tertiary border rounded-pill shadow-sm p-1 aparecer">
+                <button type="button" class="btn btn-icono rounded-circle p-0 btn-reaccion" data-emoji="👍" aria-label="Reaccionar con 👍">👍</button>
+                <button type="button" class="btn btn-icono rounded-circle p-0 btn-reaccion" data-emoji="❤️" aria-label="Reaccionar con ❤️">❤️</button>
+                <button type="button" class="btn btn-icono rounded-circle p-0 btn-reaccion" data-emoji="😂" aria-label="Reaccionar con 😂">😂</button>
+                <button type="button" class="btn btn-icono rounded-circle p-0 btn-reaccion" data-emoji="😮" aria-label="Reaccionar con 😮">😮</button>
+                <button type="button" class="btn btn-icono rounded-circle p-0 btn-reaccion" data-emoji="😢" aria-label="Reaccionar con 😢">😢</button>
+                <button type="button" class="btn btn-icono rounded-circle p-0 btn-eliminar text-danger" aria-label="Eliminar mensaje"><i class="bi bi-trash3"></i></button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Mensaje del personaje (izquierda, sin tildes de estado) -->
+    <template id="tpl-mensaje-contacto">
+        <div class="mensaje mensaje-pj position-relative d-flex flex-column align-items-start align-self-start">
+            <div class="burbuja burbuja-pj border rounded-4 px-3 py-2 text-break shadow-sm mw-100" tabindex="0">
+                <span class="texto-mensaje"></span>
+                <div class="text-end mt-1">
+                    <small class="hora-mensaje text-body-secondary"></small>
+                </div>
+            </div>
+            <span class="reaccion-mensaje badge rounded-pill bg-body-secondary border mx-2"></span>
+            <div class="acciones-mensaje d-none d-flex align-items-center gap-1 position-absolute bottom-100 start-0 bg-body-tertiary border rounded-pill shadow-sm p-1 aparecer">
+                <button type="button" class="btn btn-icono rounded-circle p-0 btn-reaccion" data-emoji="👍" aria-label="Reaccionar con 👍">👍</button>
+                <button type="button" class="btn btn-icono rounded-circle p-0 btn-reaccion" data-emoji="❤️" aria-label="Reaccionar con ❤️">❤️</button>
+                <button type="button" class="btn btn-icono rounded-circle p-0 btn-reaccion" data-emoji="😂" aria-label="Reaccionar con 😂">😂</button>
+                <button type="button" class="btn btn-icono rounded-circle p-0 btn-reaccion" data-emoji="😮" aria-label="Reaccionar con 😮">😮</button>
+                <button type="button" class="btn btn-icono rounded-circle p-0 btn-reaccion" data-emoji="😢" aria-label="Reaccionar con 😢">😢</button>
+                <button type="button" class="btn btn-icono rounded-circle p-0 btn-eliminar text-danger" aria-label="Eliminar mensaje"><i class="bi bi-trash3"></i></button>
+            </div>
+        </div>
+    </template>
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ⚙️ Orden de carga: configuración -> API -> utilidades -> acciones -> página -->
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/acciones-mensaje.js"></script>
+    <script src="../js/conversacion.js"></script>
+    <!-- Pendiente: ../js/lista-contactos.js (dibuja #lista-contactos, compartido con index.html) -->
+
     </body>
     
     

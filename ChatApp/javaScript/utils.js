@@ -44,6 +44,47 @@ function obtenerTextoEstado(estado) {
     return estados[estado] || "Estado desconocido";
 }
 
+// Claves de los temas de color que existen en el CSS ([data-tema="..."]).
+// Si el CSS agrega un personaje nuevo, hay que sumar su clave acá.
+const TEMAS_PERSONAJE = [
+    "harry",
+    "hermione",
+    "hagrid",
+    "draco",
+    "snape",
+    "voldemort",
+    "luna",
+    "tonks",
+];
+
+// Devuelve la clave del tema de color de un contacto (por ejemplo "snape").
+// 1) Si el backend envía contacto.tema y es una clave válida, la usa.
+// 2) Si no, la deduce del nombre: "Severus Snape" contiene "snape".
+// 3) Si no encuentra coincidencia devuelve "" y el CSS usa sus colores por defecto.
+function obtenerTema(contacto) {
+    // Pasa a minúsculas y quita tildes para comparar sin diferencias.
+    // normalize("NFD") separa las letras de sus tildes y replace elimina las tildes.
+    const normalizar = (texto) =>
+        String(texto || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+
+    // Intenta usar el campo tema que podría enviar el backend.
+    // El operador ?. evita un error si contacto no existe.
+    const tema = normalizar(contacto?.tema);
+
+    if (TEMAS_PERSONAJE.includes(tema)) {
+        return tema;
+    }
+
+    // Si no hay tema válido, busca alguna clave dentro del nombre del contacto.
+    // find devuelve la primera clave que está contenida en el nombre.
+    const nombre = normalizar(contacto?.nombre);
+
+    return TEMAS_PERSONAJE.find((clave) => nombre.includes(clave)) || "";
+}
+
 // Formatea la fecha de un mensaje.
 // TODO (Integrante 6): reemplazar el cuerpo por el timestamp inteligente
 // (hora / "Ayer HH:MM" / fecha completa). Ambas vistas ya usan esta función.
