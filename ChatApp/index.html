@@ -14,7 +14,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
         <!-- Estilos propios -->
-        <link href="/chat-harry-potter/ChatApp/css/styles.css" rel="stylesheet">
+        <link href="css/styles.css" rel="stylesheet">
     </head>
 
     <body>
@@ -33,8 +33,6 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h1 class="app-titulo fs-3 fw-bold mb-0">Hogwarts Chat</h1>
 
-                    <!-- MENÚ DE USUARIO: Dropdown de Bootstrap (necesita bootstrap.bundle.min.js, al final del body).
-                        Solo el ícono; al hacer clic se despliega "Mi perfil" y "Cerrar sesión". -->
                     <div class="dropdown">
                         <button type="button" class="btn btn-dark btn-sm d-inline-flex align-items-center p-2"
                             data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menú de usuario">
@@ -54,8 +52,6 @@
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <!-- Por ahora solo vuelve al login. Cuando exista el backend, el JS engancha
-                                    este id para llamar al endpoint de logout y después redirigir. -->
                                 <a id="cerrar-sesion" class="dropdown-item d-flex align-items-center gap-2 text-danger-emphasis" href="login.html">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
                                         fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/><path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/></svg>
@@ -70,172 +66,9 @@
                     placeholder="Buscar personaje…" aria-label="Buscar personaje">
             </header>
 
-            <!-- =====================================================
-                LISTA DE CONTACTOS (los 8 personajes, escritos en el HTML)
-                - Cada contacto lleva data-tema="id": el CSS (sección 2 de estilos.css)
-                le pone sus colores y su fuente, sin necesidad de JS.
-                - El orden intercala las 4 casas para que se vean todas las paletas.
-                - La descripción (segunda línea) dice de qué se puede hablar con cada personaje.
-                - Hora y badge son DATOS DE EJEMPLO (los reemplaza el JS).
-                - Estado del punto: data-estado="disponible | ocupado | no-molestar"
-                - Badge de no leídos: si queda vacío no se ve.
-                ===================================================== -->
+            <!-- Contenedor vacío: index.js carga los contactos desde /api/contactos -->
             <main class="flex-grow-1 overflow-auto">
-                <div id="lista" class="list-group list-group-flush">
-
-                    <!-- Gryffindor -->
-                    <a href="conversacion.html?personaje=harry" data-tema="harry"
-                        class="list-group-item list-group-item-action contacto d-flex align-items-center gap-3 p-3">
-                        <div class="avatar-wrap position-relative flex-shrink-0">
-                            <div class="avatar avatar-lista d-flex align-items-center justify-content-center rounded-circle fs-5 fw-bold" aria-hidden="true">H</div>
-                            <span class="estado-punto position-absolute bottom-0 end-0 rounded-circle border border-2" data-estado="disponible"></span>
-                        </div>
-                        <div class="flex-grow-1 overflow-hidden">
-                            <div class="d-flex justify-content-between align-items-baseline gap-2">
-                                <span class="contacto-nombre fs-5 lh-sm text-truncate">Harry Potter</span>
-                                <time class="contacto-hora small text-body-secondary flex-shrink-0">10:42</time>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center gap-2">
-                                <p class="contacto-ultimo text-body-secondary text-truncate small mb-0">Para hablar sobre Hogwarts, sus aventuras y cómo enfrentar los desafíos.</p>
-                                <span class="badge-no-leidos badge rounded-pill flex-shrink-0">2</span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Ravenclaw -->
-                    <a href="conversacion.html?personaje=luna" data-tema="luna"
-                        class="list-group-item list-group-item-action contacto d-flex align-items-center gap-3 p-3">
-                        <div class="avatar-wrap position-relative flex-shrink-0">
-                            <div class="avatar avatar-lista d-flex align-items-center justify-content-center rounded-circle fs-5 fw-bold" aria-hidden="true">L</div>
-                            <span class="estado-punto position-absolute bottom-0 end-0 rounded-circle border border-2" data-estado="disponible"></span>
-                        </div>
-                        <div class="flex-grow-1 overflow-hidden">
-                            <div class="d-flex justify-content-between align-items-baseline gap-2">
-                                <span class="contacto-nombre fs-5 lh-sm text-truncate">Luna Lovegood</span>
-                                <time class="contacto-hora small text-body-secondary flex-shrink-0">10:15</time>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center gap-2">
-                                <p class="contacto-ultimo text-body-secondary text-truncate small mb-0">Habla con Luna sobre criaturas que casi nadie ha visto y teorías únicas.</p>
-                                <span class="badge-no-leidos badge rounded-pill flex-shrink-0"></span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Slytherin -->
-                    <a href="conversacion.html?personaje=draco" data-tema="draco"
-                        class="list-group-item list-group-item-action contacto d-flex align-items-center gap-3 p-3">
-                        <div class="avatar-wrap position-relative flex-shrink-0">
-                            <div class="avatar avatar-lista d-flex align-items-center justify-content-center rounded-circle fs-5 fw-bold" aria-hidden="true">D</div>
-                            <span class="estado-punto position-absolute bottom-0 end-0 rounded-circle border border-2" data-estado="ocupado"></span>
-                        </div>
-                        <div class="flex-grow-1 overflow-hidden">
-                            <div class="d-flex justify-content-between align-items-baseline gap-2">
-                                <span class="contacto-nombre fs-5 lh-sm text-truncate">Draco Malfoy</span>
-                                <time class="contacto-hora small text-body-secondary flex-shrink-0">09:58</time>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center gap-2">
-                                <p class="contacto-ultimo text-body-secondary text-truncate small mb-0">Para hablar sobre Slytherin, su rivalidad con Harry y por qué es el mejor.</p>
-                                <span class="badge-no-leidos badge rounded-pill flex-shrink-0">1</span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Hufflepuff -->
-                    <a href="conversacion.html?personaje=tonks" data-tema="tonks"
-                        class="list-group-item list-group-item-action contacto d-flex align-items-center gap-3 p-3">
-                        <div class="avatar-wrap position-relative flex-shrink-0">
-                            <div class="avatar avatar-lista d-flex align-items-center justify-content-center rounded-circle fs-5 fw-bold" aria-hidden="true">N</div>
-                            <span class="estado-punto position-absolute bottom-0 end-0 rounded-circle border border-2" data-estado="disponible"></span>
-                        </div>
-                        <div class="flex-grow-1 overflow-hidden">
-                            <div class="d-flex justify-content-between align-items-baseline gap-2">
-                                <span class="contacto-nombre fs-5 lh-sm text-truncate">Nymphadora Tonks</span>
-                                <time class="contacto-hora small text-body-secondary flex-shrink-0">Ayer 21:15</time>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center gap-2">
-                                <p class="contacto-ultimo text-body-secondary text-truncate small mb-0">Habla con Tonks sobre la Orden del Fénix, su trabajo como Auror y la metamorfomagia.</p>
-                                <span class="badge-no-leidos badge rounded-pill flex-shrink-0"></span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Gryffindor -->
-                    <a href="conversacion.html?personaje=hermione" data-tema="hermione"
-                        class="list-group-item list-group-item-action contacto d-flex align-items-center gap-3 p-3">
-                        <div class="avatar-wrap position-relative flex-shrink-0">
-                            <div class="avatar avatar-lista d-flex align-items-center justify-content-center rounded-circle fs-5 fw-bold" aria-hidden="true">H</div>
-                            <span class="estado-punto position-absolute bottom-0 end-0 rounded-circle border border-2" data-estado="ocupado"></span>
-                        </div>
-                        <div class="flex-grow-1 overflow-hidden">
-                            <div class="d-flex justify-content-between align-items-baseline gap-2">
-                                <span class="contacto-nombre fs-5 lh-sm text-truncate">Hermione Granger</span>
-                                <time class="contacto-hora small text-body-secondary flex-shrink-0">Ayer 18:40</time>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center gap-2">
-                                <p class="contacto-ultimo text-body-secondary text-truncate small mb-0">Hermione te enseñará hechizos, datos de la magia y a estudiar mejor.</p>
-                                <span class="badge-no-leidos badge rounded-pill flex-shrink-0">3</span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Slytherin -->
-                    <a href="conversacion.html?personaje=snape" data-tema="snape"
-                        class="list-group-item list-group-item-action contacto d-flex align-items-center gap-3 p-3">
-                        <div class="avatar-wrap position-relative flex-shrink-0">
-                            <div class="avatar avatar-lista d-flex align-items-center justify-content-center rounded-circle fs-5 fw-bold" aria-hidden="true">S</div>
-                            <span class="estado-punto position-absolute bottom-0 end-0 rounded-circle border border-2" data-estado="no-molestar"></span>
-                        </div>
-                        <div class="flex-grow-1 overflow-hidden">
-                            <div class="d-flex justify-content-between align-items-baseline gap-2">
-                                <span class="contacto-nombre fs-5 lh-sm text-truncate">Severus Snape</span>
-                                <time class="contacto-hora small text-body-secondary flex-shrink-0">Ayer 17:02</time>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center gap-2">
-                                <p class="contacto-ultimo text-body-secondary text-truncate small mb-0">Para hablar sobre pociones y disciplina... si te atreves.</p>
-                                <span class="badge-no-leidos badge rounded-pill flex-shrink-0"></span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Gryffindor -->
-                    <a href="conversacion.html?personaje=hagrid" data-tema="hagrid"
-                        class="list-group-item list-group-item-action contacto d-flex align-items-center gap-3 p-3">
-                        <div class="avatar-wrap position-relative flex-shrink-0">
-                            <div class="avatar avatar-lista d-flex align-items-center justify-content-center rounded-circle fs-5 fw-bold" aria-hidden="true">R</div>
-                            <span class="estado-punto position-absolute bottom-0 end-0 rounded-circle border border-2" data-estado="disponible"></span>
-                        </div>
-                        <div class="flex-grow-1 overflow-hidden">
-                            <div class="d-flex justify-content-between align-items-baseline gap-2">
-                                <span class="contacto-nombre fs-5 lh-sm text-truncate">Rubeus Hagrid 🐉</span>
-                                <time class="contacto-hora small text-body-secondary flex-shrink-0">22/11/2026</time>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center gap-2">
-                                <p class="contacto-ultimo text-body-secondary text-truncate small mb-0">Habla con Hagrid si quieres aprender a cuidar criaturas mágicas.</p>
-                                <span class="badge-no-leidos badge rounded-pill flex-shrink-0"></span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Slytherin -->
-                    <a href="conversacion.html?personaje=voldemort" data-tema="voldemort"
-                        class="list-group-item list-group-item-action contacto d-flex align-items-center gap-3 p-3">
-                        <div class="avatar-wrap position-relative flex-shrink-0">
-                            <div class="avatar avatar-lista d-flex align-items-center justify-content-center rounded-circle fs-5 fw-bold" aria-hidden="true">L</div>
-                            <span class="estado-punto position-absolute bottom-0 end-0 rounded-circle border border-2" data-estado="no-molestar"></span>
-                        </div>
-                        <div class="flex-grow-1 overflow-hidden">
-                            <div class="d-flex justify-content-between align-items-baseline gap-2">
-                                <span class="contacto-nombre fs-5 lh-sm text-truncate">Lord Voldemort</span>
-                                <time class="contacto-hora small text-body-secondary flex-shrink-0">20/11/2026</time>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center gap-2">
-                                <p class="contacto-ultimo text-body-secondary text-truncate small mb-0">Para hablar sobre poder y magia oscura, bajo tu propio riesgo.</p>
-                                <span class="badge-no-leidos badge rounded-pill flex-shrink-0"></span>
-                            </div>
-                        </div>
-                    </a>
-
-                </div>
+                <div id="lista-contactos" class="list-group list-group-flush"></div>
 
                 <p id="sin-resultados" class="text-body-secondary text-center p-4 mb-0 d-none">
                     No encontramos ese personaje.
@@ -244,10 +77,13 @@
 
         </div>
 
-        <!-- Bootstrap JS: hace falta para el menú desplegable del usuario -->
+        <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
-        <!-- Archivo JavaScript principal -->
-        <script src="/javaScript/app.js"></script>
+        <!-- Scripts en orden -->
+        <script src="javaScript/config.js"></script>
+        <script src="javaScript/api.js"></script>
+        <script src="javaScript/utils.js"></script>
+        <script src="javaScript/index.js"></script>
     </body>
 </html>

@@ -514,3 +514,46 @@ aro del avatar); al pasar el mouse se ensancha y la fila toma un tinte suave. */
 
     .contacto, .btn-icono { transition: none; }
 }
+/* =========================================================
+   AJUSTES PARA IMÁGENES EN LISTA Y BORDES POR CASA
+   ========================================================= */
+
+/* Asegura que la foto dentro del avatar llene el círculo sin deformarse */
+.avatar img,
+.avatar-lista img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Bordes del color de cada casa según data-casa */
+[data-casa="gryffindor"] .avatar-lista,
+[data-casa="gryffindor"].avatar-lista {
+    border: 3px solid #D3A625;
+    box-shadow: 0 0 0 2px #740001;
+}
+
+[data-casa="slytherin"] .avatar-lista,
+[data-casa="slytherin"].avatar-lista {
+    border: 3px solid #AAAAAA;
+    box-shadow: 0 0 0 2px #1A472A;
+}
+
+[data-casa="ravenclaw"] .avatar-lista,
+[data-casa="ravenclaw"].avatar-lista {
+    border: 3px solid #946B2D;
+    box-shadow: 0 0 0 2px #0E1A40;
+}
+
+[data-casa="hufflepuff"] .avatar-lista,
+[data-casa="hufflepuff"].avatar-lista {
+    border: 3px solid #ECB939;
+    box-shadow: 0 0 0 2px #372E29;
+}
+
+/* Si data-casa viene en la tarjeta, también resalta el borde lateral con el color de casa */
+[data-casa="gryffindor"].contacto { box-shadow: inset 4px 0 0 #D3A625; }
+[data-casa="slytherin"].contacto  { box-shadow: inset 4px 0 0 #2A623D; }
+[data-casa="ravenclaw"].contacto  { box-shadow: inset 4px 0 0 #222F5B; }
+[data-casa="hufflepuff"].contacto { box-shadow: inset 4px 0 0 #ECB939; }
